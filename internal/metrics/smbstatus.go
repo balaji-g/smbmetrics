@@ -79,10 +79,12 @@ type SMBStatusOpenFile struct {
 
 // SMBStatusOpenInfo represents a single entry open_files/opens output field
 type SMBStatusOpenInfo struct {
+	ServerID    SMBStatusServerID       `json:"server_id"`
 	UID         int                     `json:"uid"`
 	ShareFileID string                  `json:"share_file_id"`
 	OpenedAt    string                  `json:"opened_at"`
 	ShareMode   SMBStatusOpenShareMode  `json:"sharemode"`
+	Caching     SMBStatusOpenCaching    `json:"caching"`
 	AccessMask  SMBStatusOpenAccessMask `json:"access_mask"`
 	OpLock      SMBStatusOpenOpLock     `json:"oplock"`
 	Lease       SMBStatusOpenLease      `json:"lease"`
@@ -90,6 +92,15 @@ type SMBStatusOpenInfo struct {
 
 // SMBStatusOpenShareMode represents a open file share-mode entry
 type SMBStatusOpenShareMode struct {
+	Read   bool   `json:"READ"`
+	Write  bool   `json:"WRITE"`
+	Delete bool   `json:"DELETE"`
+	Text   string `json:"text"`
+	Hex    string `json:"hex"`
+}
+
+// SMBStatusOpenCachingMode represents a open file caching entry
+type SMBStatusOpenCaching struct {
 	Read   bool   `json:"READ"`
 	Write  bool   `json:"WRITE"`
 	Delete bool   `json:"DELETE"`
