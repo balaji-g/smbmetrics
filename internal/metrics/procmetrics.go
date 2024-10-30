@@ -5,6 +5,7 @@ import (
     "github.com/shirou/gopsutil/v3/process"
     "strconv"
     "strings"
+    "log"
 )
 
 type PsUtilPidData struct {
@@ -29,39 +30,47 @@ func (pidData PsUtilPidData) String() string {
 func GetPsUtilPidData() ([]PsUtilPidData, error) {
     pids, err := getPidList()
     if err != nil {
+        log.Printf("getPidList() failed: %v", err)
         return nil, err
     }
 
     ret := []PsUtilPidData{}
     for _, pid := range pids {
-        proc, errProc := process.NewProcess(pid)
-        if errProc != nil {
-            return nil, errProc
+        proc, err := process.NewProcess(pid)
+        if err != nil {
+            log.Printf("NewProcess failed %v:%v", err, pid)
+            continue
         }
 
-        cpuPercent, errPer := proc.CPUPercent()
-        if errPer != nil {
-            return nil, errPer
+        cpuPercent, err := proc.CPUPercent()
+        if err != nil {
+            log.Printf("CPUPercent failed %v:%v", err, pid)
+            continue
         }
-        vmBytes, errVmBytes := proc.MemoryInfo()
-        if errVmBytes != nil {
-            return nil, errVmBytes
+        vmBytes, err := proc.MemoryInfo()
+        if err != nil {
+            log.Printf("MemoryInfo failed %v:%v", err, pid)
+            continue
         }
-        vmPercent, errVmPercent := proc.MemoryPercent()
-        if errVmPercent != nil {
-            return nil, errVmPercent
+        vmPercent, err := proc.MemoryPercent()
+        if err != nil {
+            log.Printf("MemoryPercent failed %v:%v", err, pid)
+            continue
         }
-        ioCounters, errIoCounters := proc.IOCounters()
-        if errIoCounters != nil {
-            return nil, errIoCounters
+        ioCounters, err := proc.IOCounters()
+        if err != nil {
+            log.Printf("IOCounters failed %v:%v", err, pid)
+            continue
         }
-        openFileStats, errOpenFileStats := proc.OpenFiles()
-        if errOpenFileStats != nil {
-            return nil, errOpenFileStats
+        openFileStats, err := proc.OpenFiles()
+        if err != nil {
+            log.Printf("OpenFiles failed %v:%v", err, pid)
+            continue
         }
-        threadStats, errThreadStats := proc.Threads()
-        if errThreadStats != nil {
-            return nil, errThreadStats
+        threadStats, err := proc.Threads()
+        if err != nil {
+            log.Printf("Threads failed %v:%v", err, pid)
+            continue
         }
 
         entry := PsUtilPidData{
