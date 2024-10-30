@@ -50,13 +50,13 @@ type SMBStatusSession struct {
 	GID            int                 `json:"gid"`
 	Username       string              `json:"username"`
 	Groupname      string              `json:"groupname"`
-	CreationTime   string              `json:"creation_time"`
-	ExpirationTime string              `json:"expiration_time"`
-	AuthTime       string              `json:"auth_time"`
+	CreationTime   string              `json:"creation_time,omitempty"`
+	ExpirationTime string              `json:"expiration_time,omitempty"`
+	AuthTime       string              `json:"auth_time,omitempty"`
 	RemoteMachine  string              `json:"remote_machine"`
 	Hostname       string              `json:"hostname"`
 	SessionDialect string              `json:"session_dialect"`
-	ClientGUID     string              `json:"client_guid"`
+	ClientGUID     string              `json:"client_guid,omitempty"`
 	Encryption     SMBStatusEncryption `json:"encryption"`
 	Signing        SMBStatusSigning    `json:"signing"`
 }
