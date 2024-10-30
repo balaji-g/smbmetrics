@@ -236,7 +236,7 @@ func (sme *smbMetricsExporter) newSMBProcessCollector() prometheus.Collector {
     col.sme = sme
     col.dsc = []*prometheus.Desc{
         prometheus.NewDesc(
-            collectorName("smbd_status_up", "status"),
+            collectorName("smbd_up", "status"),
             "SMBD Status",
             []string{}, nil),
 
