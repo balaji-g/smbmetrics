@@ -2,10 +2,11 @@ package metrics
 
 import (
     "fmt"
-    "github.com/shirou/gopsutil/v3/process"
+    "github.com/shirou/gopsutil/v4/net"
+    "github.com/shirou/gopsutil/v4/process"
+    "log"
     "strconv"
     "strings"
-    "log"
 )
 
 type PsUtilPidData struct {
@@ -17,6 +18,8 @@ type PsUtilPidData struct {
     IoCounterReadBytes        uint64
     IoCounterWriteCount       uint64
     IoCounterWriteBytes       uint64
+    BytesSent                 uint64
+    BytesRecv                 uint64
     OpenFilesCount            uint64
     ThreadCount               uint64
 }
@@ -25,6 +28,7 @@ func (pidData PsUtilPidData) String() string {
     return fmt.Sprintf("PID: %d; CPU Usage Percent: %f; VM Usage Bytes: %d; VM Usage Percent: %f; IO Read Count: %d; IO Read Bytes: %d; IO Write Count: %d; IO Write Bytes: %d; Open File Count: %d; Thread Count: %d",
         pidData.PID, pidData.CpuUsagePercent, pidData.VirtualMemoryUsageBytes, pidData.VirtualMemoryUsagePercent,
         pidData.IoCounterReadCount, pidData.IoCounterReadBytes, pidData.IoCounterWriteCount, pidData.IoCounterWriteBytes,
+        pidData.BytesSent, pidData.BytesRecv,
         pidData.OpenFilesCount, pidData.ThreadCount)
 }
 func GetPsUtilPidData() ([]PsUtilPidData, error) {
@@ -60,7 +64,14 @@ func GetPsUtilPidData() ([]PsUtilPidData, error) {
         ioCounters, err := proc.IOCounters()
         if err != nil {
             log.Printf("IOCounters failed %v:%v", err, pid)
-            continue
+            //continue
+        }
+        if ioCounters == nil {
+            ioCounters = &process.IOCountersStat{}
+        }
+        netCounters, err := net.IOCounters(false)
+        if err != nil {
+            log.Printf("NetCounters failed %v:%v", err, pid)
         }
         openFileStats, err := proc.OpenFiles()
         if err != nil {
@@ -82,6 +93,8 @@ func GetPsUtilPidData() ([]PsUtilPidData, error) {
             ioCounters.ReadBytes,
             ioCounters.WriteCount,
             ioCounters.WriteBytes,
+            netCounters[0].BytesSent,
+            netCounters[0].BytesRecv,
             uint64(len(openFileStats)),
             uint64(len(threadStats)),
         }

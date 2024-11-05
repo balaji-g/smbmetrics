@@ -192,9 +192,9 @@ type smbProcessCollector struct {
 func (col *smbProcessCollector) Collect(ch chan<- prometheus.Metric) {
 
     serverUp := 0
-    cpuUsagePercent := float64(0)
     vmBytes := uint64(0)
-    vmPercent := float64(0)
+    netBytesSent := uint64(0)
+    netBytesRecv := uint64(0)
     ioReadCount := uint64(0)
     ioReadBytes := uint64(0)
     ioWriteCount := uint64(0)
@@ -204,9 +204,9 @@ func (col *smbProcessCollector) Collect(ch chan<- prometheus.Metric) {
     if err == nil {
         serverUp = 1
         for _, ps := range psInfo {
-            cpuUsagePercent += ps.CpuUsagePercent
             vmBytes += ps.VirtualMemoryUsageBytes
-            vmPercent += ps.VirtualMemoryUsagePercent
+            netBytesRecv += ps.BytesRecv
+            netBytesSent += ps.BytesSent
             ioReadCount += ps.IoCounterReadCount
             ioReadBytes += ps.IoCounterReadBytes
             ioWriteBytes += ps.IoCounterWriteBytes
@@ -216,11 +216,11 @@ func (col *smbProcessCollector) Collect(ch chan<- prometheus.Metric) {
     ch <- prometheus.MustNewConstMetric(col.dsc[0],
         prometheus.GaugeValue, float64(serverUp))
     ch <- prometheus.MustNewConstMetric(col.dsc[1],
-        prometheus.GaugeValue, cpuUsagePercent)
+        prometheus.GaugeValue, float64(netBytesRecv))
     ch <- prometheus.MustNewConstMetric(col.dsc[2],
         prometheus.GaugeValue, float64(vmBytes))
     ch <- prometheus.MustNewConstMetric(col.dsc[3],
-        prometheus.GaugeValue, vmPercent)
+        prometheus.GaugeValue, float64(netBytesSent))
     ch <- prometheus.MustNewConstMetric(col.dsc[4],
         prometheus.GaugeValue, float64(ioReadCount))
     ch <- prometheus.MustNewConstMetric(col.dsc[5],
@@ -241,7 +241,7 @@ func (sme *smbMetricsExporter) newSMBProcessCollector() prometheus.Collector {
             []string{}, nil),
 
         prometheus.NewDesc(
-            collectorName("cpuusage", "percent"),
+            collectorName("netbytes", "sent"),
             "CPU Usage Percent",
             []string{}, nil),
 
@@ -251,7 +251,7 @@ func (sme *smbMetricsExporter) newSMBProcessCollector() prometheus.Collector {
             []string{}, nil),
 
         prometheus.NewDesc(
-            collectorName("vmusage", "percent"),
+            collectorName("netbytes", "recv"),
             "Virtual Memory Usage Percent",
             []string{}, nil),
 
