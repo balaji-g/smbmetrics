@@ -216,9 +216,9 @@ func (col *smbProcessCollector) Collect(ch chan<- prometheus.Metric) {
     ch <- prometheus.MustNewConstMetric(col.dsc[0],
         prometheus.GaugeValue, float64(serverUp))
     ch <- prometheus.MustNewConstMetric(col.dsc[1],
-        prometheus.GaugeValue, float64(netBytesRecv))
-    ch <- prometheus.MustNewConstMetric(col.dsc[2],
         prometheus.GaugeValue, float64(vmBytes))
+    ch <- prometheus.MustNewConstMetric(col.dsc[2],
+        prometheus.GaugeValue, float64(netBytesRecv))
     ch <- prometheus.MustNewConstMetric(col.dsc[3],
         prometheus.GaugeValue, float64(netBytesSent))
     ch <- prometheus.MustNewConstMetric(col.dsc[4],
@@ -241,18 +241,18 @@ func (sme *smbMetricsExporter) newSMBProcessCollector() prometheus.Collector {
             []string{}, nil),
 
         prometheus.NewDesc(
-            collectorName("netbytes", "sent"),
-            "CPU Usage Percent",
-            []string{}, nil),
-
-        prometheus.NewDesc(
             collectorName("vmusagebytes", "total"),
             "Virtual Memory Usage Bytes",
             []string{}, nil),
 
         prometheus.NewDesc(
+            collectorName("netbytes", "sent"),
+            "Network Bytes Sent",
+            []string{}, nil),
+
+        prometheus.NewDesc(
             collectorName("netbytes", "recv"),
-            "Virtual Memory Usage Percent",
+            "Network Bytes Received",
             []string{}, nil),
 
         prometheus.NewDesc(
