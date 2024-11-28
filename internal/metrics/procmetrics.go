@@ -22,6 +22,7 @@ type PsUtilPidData struct {
     BytesRecv                 uint64
     OpenFilesCount            uint64
     ThreadCount               uint64
+    ServerID                  string
 }
 
 func (pidData PsUtilPidData) String() string {
@@ -35,6 +36,12 @@ func GetPsUtilPidData() ([]PsUtilPidData, error) {
     pids, err := getPidList()
     if err != nil {
         log.Printf("getPidList() failed: %v", err)
+        return nil, err
+    }
+
+    sid, err := getServerID()
+    if err != nil {
+        log.Printf("getServerID() failed: %v", err)
         return nil, err
     }
 
@@ -97,6 +104,7 @@ func GetPsUtilPidData() ([]PsUtilPidData, error) {
             netCounters[0].BytesRecv,
             uint64(len(openFileStats)),
             uint64(len(threadStats)),
+            sid,
         }
         ret = append(ret, entry)
     }
@@ -124,4 +132,17 @@ func getPidList() ([]int32, error) {
         }
     }
     return pidList, nil
+}
+
+func getServerID() (string, error) {
+    idInByte, err := executeCommand("grep", "server\\s*string\\s*=", "/etc/samba/smb.conf")
+    if err != nil {
+        return "", err
+    }
+
+    idLines := strings.Split(string(idInByte), "=")
+    if len(idLines) == 2 {
+        return strings.TrimSpace(idLines[1]), nil
+    }
+    return "unkown-function-id", nil
 }
